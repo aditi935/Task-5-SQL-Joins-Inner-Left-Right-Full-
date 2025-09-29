@@ -6,50 +6,22 @@
 CREATE DATABASE joindb;
 USE joindb;
 
--- Create Customers table
+-- Create Customers table with manager_id included from start
 CREATE TABLE Customers (
     customer_id INT PRIMARY KEY,
     customer_name VARCHAR(50),
     email VARCHAR(100),
-    city VARCHAR(50)
+    city VARCHAR(50),
+    manager_id INT
 );
 
--- Create Orders table (initially without foreign key)
+-- Create Orders table
 CREATE TABLE Orders (
     order_id INT PRIMARY KEY,
     customer_id INT,
     order_date DATE,
     amount DECIMAL(10,2)
 );
-
--- =============================================
--- SAMPLE DATA INSERTION
--- =============================================
-
--- Insert data into Customers table
-INSERT INTO Customers (customer_id, customer_name, email, city) VALUES
-(1, 'John Doe', 'john@email.com', 'New York'),
-(2, 'Jane Smith', 'jane@email.com', 'Los Angeles'),
-(3, 'Bob Johnson', 'bob@email.com', 'Chicago'),
-(4, 'Alice Brown', 'alice@email.com', 'Houston'),
-(5, 'Charlie Wilson', 'charlie@email.com', 'Phoenix');
-
--- Insert data into Orders table (only valid customer_ids)
-INSERT INTO Orders (order_id, customer_id, order_date, amount) VALUES
-(101, 1, '2024-01-15', 150.00),
-(102, 1, '2024-01-20', 200.00),
-(103, 2, '2024-01-18', 75.50),
-(104, 3, '2024-01-22', 300.00),
-(105, 5, '2024-01-25', 125.00);
-
--- Add foreign key constraint
-ALTER TABLE Orders 
-ADD CONSTRAINT fk_customer
-FOREIGN KEY (customer_id) REFERENCES Customers(customer_id);
-
--- =============================================
--- ADDITIONAL TABLES FOR MULTI-TABLE JOINS
--- =============================================
 
 -- Create Products table
 CREATE TABLE Products (
@@ -66,16 +38,44 @@ CREATE TABLE Order_Items (
     quantity INT
 );
 
--- Insert sample data for additional tables
-INSERT INTO Products VALUES 
-(1, 'Laptop', 999.99),
-(2, 'Phone', 699.99),
-(3, 'Tablet', 399.99);
+-- =============================================
+-- SAMPLE DATA INSERTION
+-- =============================================
 
+-- Insert data into Customers table with manager_id
+INSERT INTO Customers (customer_id, customer_name, email, city, manager_id) VALUES
+(1, 'John Doe', 'john@email.com', 'New York', NULL),
+(2, 'Jane Smith', 'jane@email.com', 'Los Angeles', 1),
+(3, 'Bob Johnson', 'bob@email.com', 'Chicago', 1),
+(4, 'Alice Brown', 'alice@email.com', 'Houston', 2),
+(5, 'Charlie Wilson', 'charlie@email.com', 'Phoenix', 2);
+
+-- Insert data into Orders table
+INSERT INTO Orders (order_id, customer_id, order_date, amount) VALUES
+(101, 1, '2024-01-15', 150.00),
+(102, 1, '2024-01-20', 200.00),
+(103, 2, '2024-01-18', 75.50),
+(104, 3, '2024-01-22', 300.00),
+(105, 5, '2024-01-25', 125.00);
+
+-- Insert data into Products table
+INSERT INTO Products VALUES 
+(201, 'Laptop', 800.00),
+(202, 'Mouse', 25.00),
+(203, 'Keyboard', 45.00);
+
+-- Insert data into Order_Items table
 INSERT INTO Order_Items VALUES 
-(1, 101, 1, 1),
-(2, 102, 2, 2),
-(3, 103, 3, 1);
+(301, 101, 201, 1),
+(302, 101, 202, 2),
+(303, 102, 203, 1),
+(304, 103, 202, 3),
+(305, 104, 201, 2);
+
+-- Add foreign key constraint
+ALTER TABLE Orders 
+ADD CONSTRAINT fk_customer
+FOREIGN KEY (customer_id) REFERENCES Customers(customer_id);
 
 -- =============================================
 -- JOIN QUERIES
@@ -136,16 +136,7 @@ CROSS JOIN Orders o
 ORDER BY c.customer_name, o.order_id
 LIMIT 10;
 
--- QUERY 6: SELF JOIN Setup and Query
--- Add manager_id column for self-join demo
-ALTER TABLE Customers ADD COLUMN manager_id INT;
-
--- Update manager relationships
-UPDATE Customers SET manager_id = NULL WHERE customer_id = 1;
-UPDATE Customers SET manager_id = 1 WHERE customer_id IN (2,3);
-UPDATE Customers SET manager_id = 2 WHERE customer_id IN (4,5);
-
--- Self-join query
+-- QUERY 6: SELF JOIN - Employee Manager Relationships
 SELECT 
     emp.customer_name AS employee,
     mgr.customer_name AS manager
