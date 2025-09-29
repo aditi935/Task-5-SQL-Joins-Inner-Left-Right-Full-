@@ -1,10 +1,9 @@
-
 -- =============================================
 -- DATABASE AND TABLES CREATION
 -- =============================================
 
 -- Create database
-CREATE DATABASE  joindb;
+CREATE DATABASE joindb;
 USE joindb;
 
 -- Create Customers table
@@ -79,7 +78,7 @@ INSERT INTO Order_Items VALUES
 (3, 103, 3, 1);
 
 -- =============================================
---  JOIN QUERIES
+-- JOIN QUERIES
 -- =============================================
 
 -- QUERY 1: INNER JOIN - Customers with Orders
@@ -119,9 +118,7 @@ SELECT
     o.amount
 FROM Customers c
 LEFT JOIN Orders o ON c.customer_id = o.customer_id
-
 UNION
-
 SELECT 
     c.customer_id,
     c.customer_name,
@@ -209,4 +206,3 @@ LEFT JOIN Orders o ON c.customer_id = o.customer_id
 WHERE (o.amount > 100 OR o.amount IS NULL)
 AND c.city IN ('New York', 'Los Angeles', 'Chicago', 'Houston')
 ORDER BY c.customer_name, o.order_date;
-
